@@ -6,9 +6,11 @@ import { IssuesContext } from "../context/IssueProvider";
 export default function IssueForm() {
   const { addIssue } = useContext(IssuesContext);
   const initInputs = {
+    
+    issueId:"",
     title: "",
     description: "",
-    imgUrl: "",
+   
   };
 
   const [inputs, setInputs] = useState(initInputs);
@@ -52,6 +54,7 @@ export default function IssueForm() {
         placeholder="Image Url"
       />
       <button>
+      add issue
         <i className="fa-solid fa-plus"></i>
       </button>
     </form>
