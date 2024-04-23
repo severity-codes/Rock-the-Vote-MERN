@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const path = require("path");
 const cors = require("cors");
+// Removed the incorrect use of bcrypt and jwt here as middleware
 
 // Environment variables
 const PORT = process.env.PORT || 9080;
@@ -17,22 +18,18 @@ const corsOptions = {
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   allowedHeaders: "Content-Type,Authorization",
 };
-app.use(cors(corsOptions));
 
 // Middlewares
 app.use(express.json());
+app.use(cors(corsOptions)); // Moved here after corsOptions is defined
 app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "client", "build")));
 
 // MongoDB Connection
 mongoose
   .connect(MONGODB_URI)
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.log("Error connecting to MongoDB: ", err);
-  });
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.log("Error connecting to MongoDB: ", err));
 
 // Routes
 const authRouter = require("./routes/authRouter.js");

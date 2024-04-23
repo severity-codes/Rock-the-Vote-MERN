@@ -1,63 +1,92 @@
 const express = require("express");
 const User = require("../models/User");
-const SECRET = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const authRouter = express.Router();
-
-// Constants for better readability and maintainability
-const HTTP_STATUS_OK = 200;
-const HTTP_STATUS_FORBIDDEN = 403;
-const HTTP_STATUS_UNAUTHORIZED = 401;
-const HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
-const ERROR_MESSAGE_USER_EXISTS = "This username already exists";
-const ERROR_MESSAGE_INCORRECT_CREDENTIALS = "Username or Password are incorrect";
-const ERROR_MESSAGE_UNEXPECTED_ERROR = "An unexpected error occurred";
+const SECRET = process.env.SECRET || "default_secret"; // Fallback secret
 
 // Helper function to generate JWT token
-const generateToken = (user) => {
-  const userData = user.withoutPassword(); // Assuming this method removes password from the user object
-  return SECRET.sign(userData, process.env.SECRET);
+const generateToken = (user) => jwt.sign(user.withoutPassword(), SECRET);
+
+// Helper function to handle errors
+const handleError = (res, error, statusCode = 500) => {
+  res.status(statusCode);
+  return next(error);
 };
 
 // Signup route
 authRouter.post("/signup", async (req, res, next) => {
   try {
-    const username = req.body.username.toLowerCase();
-    // Add explicit validation/sanitization for req.body here
-    const userExists = await User.findOne({ username });
-    if (userExists) {
-      return res.status(HTTP_STATUS_FORBIDDEN).json({ message: ERROR_MESSAGE_USER_EXISTS });
+    const existingUser = await User.findOne({
+      username: req.body.username.toLowerCase(),
+    });
+    if (existingUser) {
+      return handleError(res, new Error("That username is already taken"), 403);
     }
-    const newUser = new User(req.body); // Consider adding explicit validation here
+    const newUser = new User(req.body);
     const savedUser = await newUser.save();
     const token = generateToken(savedUser);
-    res.status(HTTP_STATUS_OK).json({ token, user: savedUser.withoutPassword() });
+    return res.status(201).send({ token, user: savedUser.withoutPassword() });
   } catch (err) {
-    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({ message: ERROR_MESSAGE_UNEXPECTED_ERROR });
-    next(err);
+    return handleError(res, err);
   }
 });
 
 // Login route
 authRouter.post("/login", async (req, res, next) => {
   try {
-    const username = req.body.username.toLowerCase();
-    const user = await User.findOne({ username });
+    const user = await User.findOne({
+      username: req.body.username.toLowerCase(),
+    });
     if (!user) {
-      return res
-        .status(HTTP_STATUS_UNAUTHORIZED)
-        .json({ message: ERROR_MESSAGE_INCORRECT_CREDENTIALS });
+      return handleError(
+        res,
+        new Error("Username or Password are incorrect"),
+        403
+      );
     }
-    const isMatch = await user.checkPassword(req.body.password);
-    if (!isMatch) {
-      return res
-        .status(HTTP_STATUS_UNAUTHORIZED)
-        .json({ message: ERROR_MESSAGE_INCORRECT_CREDENTIALS });
+    user.checkPassword(req.body.password, (err, isMatch) => {
+      if (err || !isMatch) {
+        return handleError(
+          res,
+          new Error("Username or Password are incorrect"),
+          403
+        );
+      }
+      const token = generateToken(user);
+      return res.status(200).send({ token, user: user.withoutPassword() });
+    });
+  } catch (err) {
+    return handleError(res, err);
+  }
+});
+
+// Update user information
+authRouter.put("/user/:id", async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!user) {
+      return handleError(res, new Error("User not found"), 404);
     }
     const token = generateToken(user);
-    res.status(HTTP_STATUS_OK).json({ token, user: user.withoutPassword() });
+    return res.status(200).send({ token, user: user.withoutPassword() });
   } catch (err) {
-    res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({ message: ERROR_MESSAGE_UNEXPECTED_ERROR });
-    next(err);
+    return handleError(res, err);
+  }
+});
+
+// Get user information by ID
+authRouter.get("/users/:id", async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return handleError(res, new Error("User not found"), 404);
+    }
+    const token = generateToken(user);
+    return res.status(200).send({ token, user: user.withoutPassword() });
+  } catch (err) {
+    return handleError(res, err);
   }
 });
 

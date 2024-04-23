@@ -1,6 +1,12 @@
 {
     "cSpell.words": [
         "expressjwt",
+        "getpublic",
+        "Singup",
         "upvoted"
+    ],
+    "emmet.excludeLanguages": [
+        "xsl",
+        "xslt"
     ]
 }

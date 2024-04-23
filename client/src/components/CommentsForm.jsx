@@ -4,50 +4,62 @@ import React, { useContext, useState } from "react";
 import { UserContext } from "../context/UserProvider";
 import { IssuesContext } from "../context/IssueProvider";
 import "../style/commentStyle.css";
+import { CommentContext } from "../context/CommentProvider";
+function CommentForm(props) {
+  const { issueId } = props;
 
-export default function CommentsForm({ issueId }) {
-  const { addComment } = useContext(IssuesContext);
-  const { user: { username } } = useContext(UserContext);
-  const [comment, setComment] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleChange = (e) => {
-    setComment(e.target.value);
+  const initInputs = {
+    comment: "",
   };
 
-  const handleSubmit = (e) => {
+  const [inputs, setInputs] = useState(initInputs);
+
+  const { addComment } = useContext(CommentContext);
+
+  const {
+    user: { username },
+    token,
+  } = useContext(UserContext);
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setInputs((prevInputs) => ({
+      ...prevInputs,
+      [name]: value,
+    }));
+  }
+
+  function handleSubmit(e) {
     e.preventDefault();
-    const newComment = {
-      comment,
-      commentedBy: username,
-      issue: issueId,
-    };
-    addComment(newComment, issueId)
-      .then(() => setComment(""))
-      .catch((error) => console.error("Failed to add comment:", error));
-  };
+    addComment(issueId, inputs);
+    setInputs(initInputs);
+  }
 
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-  };
+  const { comment } = inputs;
+
+  const firstLetter = username ? username.charAt(0).toUpperCase() : "";
+
+  if (!token) {
+    return null; // or render some other component instead
+  }
 
   return (
-    <>
-      <div className="toggle-btn" onClick={handleToggle}>
-        {isOpen ? "Hide Comment section🔼 " : "Leave a Comment 🔽"}
-      </div>
-      {isOpen && (
-        <form onSubmit={handleSubmit} className="comment-form">
-          <input
-            type="text"
-            name="comment"
-            value={comment}
-            onChange={handleChange}
-            placeholder="Leave a comment..."
-          />
-          <button type="submit">Post</button>
-        </form>
-      )}
-    </>
+    <div className="comment-form-wrapper">
+      <div className="profile-pic">{firstLetter}</div>
+      <form className="comment-form" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="comment"
+          value={comment}
+          onChange={handleChange}
+          placeholder="Write a comment..."
+        />
+        <button className="comment-submit-btn">
+          <i className="fa-regular fa-paper-plane"></i>
+        </button>
+      </form>
+    </div>
   );
 }
+
+export default CommentForm;

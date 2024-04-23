@@ -1,31 +1,25 @@
 /* eslint-disable no-unused-vars */
-import React from 'react';
-import PropTypes from 'prop-types'; // Import PropTypes
-import Comment from './Comment'; // Removed the .jsx extension
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
+import React, { useContext, useEffect } from "react";
+import Comment from "./Comment";
+import "./comment.css";
+import { CommentContext } from "../context/CommentProvider";
 
-// Define the component and use PropTypes for prop validation
-function CommentsList({ comments }) {
+function Comments({ issueId, comments }) {
+  const { getComments } = useContext(CommentContext);
+
+  useEffect(() => {
+    getComments(issueId);
+  }, [issueId]);
+
   return (
     <div className="comment-list">
-      {comments?.map((comment) => (
-        <Comment
-          key={comment._id}
-          comment={comment}
-          issueId={comment.issue}
-        />
+      {comments.map((comment) => (
+        <Comment {...comment} key={comment._id} issueId={issueId} />
       ))}
     </div>
   );
 }
 
-// PropTypes validation
-CommentsList.propTypes = {
-  comments: PropTypes.arrayOf(
-    PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      issue: PropTypes.string,
-    })
-  ),
-};
-
-export default CommentsList;
+export default Comments;
