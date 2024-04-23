@@ -6,7 +6,7 @@ import { IssuesContext } from "../context/IssueProvider";
 import "../style/commentStyle.css";
 
 export default function CommentsForm({ issueId }) {
-  const { addComment } = useContext(IssueContext);
+  const { addComment } = useContext(IssuesContext);
   const { user: { username } } = useContext(UserContext);
   const [comment, setComment] = useState("");
   const [isOpen, setIsOpen] = useState(false);

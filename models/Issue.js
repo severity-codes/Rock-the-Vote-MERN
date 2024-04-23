@@ -1,41 +1,49 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+
 const Schema = mongoose.Schema;
 
-const issueSchema = new Schema({
+const issueSchema = new Schema(
+  {
     title: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     description: {
-        type: String
+      type: String,
+    },
+    completed: {
+      type: Boolean,
+      default: false,
+    },
+    imgUrl: {
+      type: String,
+      required: true,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
     user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        index: true // Adding an index if this field is often queried
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    upvotedBy: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User'
-        }
+    likes: [
+      {
+        user: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        username: {
+          type: String,
+          required: true,
+        },
+      },
     ],
-    downvotedBy: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User'
-        }
-    ],
-    issueVotes: {
-        type: Number,
-        default: 0
-    },
-    postDate: {
-        type: Date,
-        default: Date.now, // Use the Date.now function directly
-        index: true // Adding an index if this field is often queried
-    }
-});
+  },
+  {
+    timestamps: true,
+  }
+);
 
-module.exports = mongoose.model('Issue', issueSchema);
+module.exports = mongoose.model("Issue", issueSchema);

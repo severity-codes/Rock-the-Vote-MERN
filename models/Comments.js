@@ -1,24 +1,31 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const mongoose = require("mongoose");
 
-const commentsSchema = new Schema({
+const Schema = mongoose.Schema;
+
+const commentSchema = new Schema({
   comment: {
     type: String,
     required: true,
-    maxlength: 500, // Example of adding a maximum length
-  },
-  issue: {
-    type: Schema.Types.ObjectId,
-    ref: 'Issue',
-    required: true,
-    index: true, // Adding an index for faster querying
   },
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
-    index: true, // Adding an index here as well
   },
-}, { timestamps: true }); // Enabling timestamps to automatically manage createdAt and updatedAt fields
+  issue: {
+    type: Schema.Types.ObjectId,
+    ref: "Issue",
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  likes: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+});
 
-module.exports = mongoose.model('Comments', commentsSchema);
+module.exports = mongoose.model("Comment", commentSchema);

@@ -1,20 +1,13 @@
 const express = require("express");
 const issueRouter = express.Router();
 const Issue = require("../models/Issue.js");
-
+const { expressjwt } = require("express-jwt");
+require("dotenv").config();
 // Constants for HTTP status codes
 const HTTP_OK = 200;
 const HTTP_CREATED = 201;
 const HTTP_NOT_FOUND = 404;
 const HTTP_INTERNAL_SERVER_ERROR = 500;
-
-// Middleware to check authentication
-const isAuthenticated = (req, res, next) => {
-  if (!req.auth) {
-    return res.status(HTTP_UNAUTHORIZED).json({ message: "Unauthorized" });
-  }
-  next();
-};
 
 // Get all issues
 issueRouter.get("/", async (req, res) => {
@@ -29,7 +22,7 @@ issueRouter.get("/", async (req, res) => {
 });
 
 // Get issues by user id
-issueRouter.get("/user", isAuthenticated, async (req, res) => {
+issueRouter.get("/user", async (req, res) => {
   try {
     const issues = await Issue.find({ user: req.auth._id });
     res.status(HTTP_OK).json(issues);
@@ -40,17 +33,18 @@ issueRouter.get("/user", isAuthenticated, async (req, res) => {
   }
 });
 
+
 // Add new Issue
-issueRouter.post("/", isAuthenticated, async (req, res) => {
+issueRouter.post("/",expressjwt({ secret: process.env.SECRET, algorithms: ['HS256'] }), async (req, res, next) => {
   try {
     req.body.user = req.auth._id;
     const newIssue = new Issue(req.body);
     const savedIssue = await newIssue.save();
-    res.status(HTTP_CREATED).json(savedIssue);
+    const populatedIssue = await savedIssue.populate('user', 'username profileImage');
+    res.status(201).send(populatedIssue);
   } catch (err) {
-    res
-      .status(HTTP_INTERNAL_SERVER_ERROR)
-      .json({ message: "Error saving new issue", error: err });
+    res.status(500);
+    return next(err);
   }
 });
 
@@ -75,7 +69,7 @@ issueRouter.delete("/:issueId", async (req, res) => {
 });
 
 // Upvote an issue
-issueRouter.put("/upvote/:issueId", isAuthenticated, async (req, res) => {
+issueRouter.put("/upvote/:issueId",  async (req, res) => {
   try {
     const updatedIssue = await Issue.findByIdAndUpdate(
       req.params.issueId,
@@ -98,7 +92,7 @@ issueRouter.put("/upvote/:issueId", isAuthenticated, async (req, res) => {
 });
 
 // Downvote an issue
-issueRouter.put("/downvote/:issueId", isAuthenticated, async (req, res) => {
+issueRouter.put("/downvote/:issueId", async (req, res) => {
   try {
     const updatedIssue = await Issue.findByIdAndUpdate(
       req.params.issueId,
