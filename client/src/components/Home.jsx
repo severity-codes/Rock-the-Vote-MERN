@@ -30,6 +30,7 @@ const Home = () => {
             Any new issues to post?, {usernameCased}?
           </h3>
           <IssueForm addIssue={addIssue} />
+          <Issues deleteIssue/>
         </div>
       </div>
       <div className="issues-wrapper">

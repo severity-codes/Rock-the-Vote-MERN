@@ -1,6 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import React, { useState, useContext, useEffect } from "react";
 import Issue from "./Issue";
 import Comments from "../components/CommentsList";
@@ -8,14 +7,11 @@ import CommentForm from "../components/CommentsForm";
 import { CommentContext } from "../context/CommentProvider";
 import { IssuesContext } from "../context/IssueProvider";
 import { UserContext } from "../context/UserProvider";
-// import "./issue.css";
 
 export default function Issues({ userId }) {
   const { comments, getComments } = useContext(CommentContext);
-
-  const { getUserIssues, issues, likeIssue, dislikeIssue } =
+  const { getUserIssues, issues, likeIssue, dislikeIssue, deleteIssue } =
     useContext(IssuesContext);
-
   const {
     user: { username, _id },
     token,
@@ -37,6 +33,13 @@ export default function Issues({ userId }) {
     fetchData();
   }, [userId, currentIssueId]);
 
+  const handleDeleteIssue = async (issueId) => {
+    // Call the deleteIssue function from the context
+    await deleteIssue(issueId);
+    // After deletion, fetch the updated list of issues
+    await getUserIssues(userId);
+  };
+
   return (
     <div className="issue-list">
       {issues?.map((issue) => (
@@ -48,8 +51,6 @@ export default function Issues({ userId }) {
             ) : (
               <i className="fa-solid fa-thumbs-up"></i>
             )}
-
-           
             {(() => {
               const userLike = issue.likes.filter(
                 (like) => like.user === userId
@@ -103,6 +104,7 @@ export default function Issues({ userId }) {
                 </span>
               )}
             </button>
+            <button onClick={() => handleDeleteIssue(issue._id)}>Delete</button>
           </div>
           {currentIssueId === issue._id && (
             <>
