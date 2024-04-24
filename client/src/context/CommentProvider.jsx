@@ -37,10 +37,10 @@ export default function CommentProvider(props) {
   const getComments = async (issueId) => {
     try {
       const response = await userAxios.get(`/api/comment/${issueId}`);
-      setCommentState((prevState) => ({
-        ...prevState,
-        comments: response.data,
-      }));
+       setCommentState((prevState) => ({
+         ...prevState,
+         comments: Array.isArray(response.data) ? response.data : [],
+       }));
     } catch (err) {
       console.log(err.response.data.errMsg);
     }
