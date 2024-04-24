@@ -3,7 +3,7 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect } from "react";
 import Comment from "./Comment";
-import "./comment.css";
+// import "./comment.css";
 import { CommentContext } from "../context/CommentProvider";
 
 function Comments({ issueId, comments }) {
