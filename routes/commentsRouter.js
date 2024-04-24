@@ -1,6 +1,9 @@
 
 const express = require("express");
 const commentsRouter = express.Router();
+const Comment = require("../models/Comments");
+
+// Helper function to send an error response
 const sendErrorResponse = (res, err) => {
   console.error(err);
   res.status(500).send({ message: "An error occurred", error: err.message });
@@ -23,19 +26,26 @@ commentsRouter.get("/:issueId", async (req, res) => {
     sendErrorResponse(res, err);
   }
 });
-
 commentsRouter.post("/:issueId", async (req, res) => {
   try {
-    if (!req.body.text) {
-      return res.status(400).send({ message: "Missing comment text" });
+    const { user, comment } = req.body;
+    if (!user || !comment) {
+      return res
+        .status(400)
+        .send({ message: "Missing required fields: user and comment" });
     }
-    const commentData = { ...req.body, issue: req.params.issueId };
-    const newComment = new Comment(commentData);
-    const savedComment = await newComment.save();
-    res.status(201).send(savedComment);
-  } catch (err) {
-    sendErrorResponse(res, err);
+    const newComment = new Comment({
+      user,
+      comment,
+      issue: req.params.issueId,
+    });
+    await newComment.save();
+    res.status(201).send(newComment);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Internal server error" });
   }
 });
+
 
 module.exports = commentsRouter; // Adjusted for CommonJS

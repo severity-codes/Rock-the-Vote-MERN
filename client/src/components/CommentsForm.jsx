@@ -29,9 +29,11 @@ function CommentForm(props) {
     }));
   }
 
+
   function handleSubmit(e) {
     e.preventDefault();
-    addComment(issueId, inputs);
+    
+    addComment(issueId, { text: inputs.comment });
     setInputs(initInputs);
   }
 

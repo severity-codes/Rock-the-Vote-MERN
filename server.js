@@ -37,7 +37,7 @@ const issueRouter = require("./routes/issueRouter.js");
 const commentsRouter = require("./routes/commentsRouter.js");
 app.use("/auth", authRouter);
 app.use("/api/issue", issueRouter);
-app.use("/api/comments", commentsRouter);
+app.use("/api/comment", commentsRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
