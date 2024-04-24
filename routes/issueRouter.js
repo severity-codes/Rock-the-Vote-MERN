@@ -97,6 +97,9 @@ issueRouter.put(
 // @route   PUT api/issues/like/:id
 // @des     Like a issue
 // @access  Private
+// @route   PUT api/issues/like/:id
+// @des     Upvote (like) an issue
+// @access  Private
 issueRouter.put(
   "/like/:id",
   expressjwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
@@ -105,17 +108,12 @@ issueRouter.put(
       const issue = await Issue.findById(req.params.id);
       const userId = req.auth._id;
       const username = req.auth.username;
-      console.log(username);
-
+      
       if (!issue) {
         return res.status(404).json({ msg: "Issue not found" });
       }
 
-      // Check if the issue has already been liked by the user
-      if (issue.likes.some((like) => like.user.toString() === userId)) {
-        return res.status(400).json({ msg: "Issue already liked" });
-      }
-
+      // Add like (upvote) to the issue
       issue.likes.push({ user: userId, username: username });
       await issue.save();
 
@@ -127,33 +125,27 @@ issueRouter.put(
   }
 );
 
-// @route   PUT api/issues/unlike/:id
-// @des     Unlike an issue
+// @route   PUT api/issues/dislike/:id
+// @des     Downvote (dislike) an issue
 // @access  Private
 issueRouter.put(
-  "/unlike/:id",
+  "/dislike/:id",
   expressjwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
   async (req, res) => {
     try {
       const issue = await Issue.findById(req.params.id);
       const userId = req.auth._id;
-
-      // Check if the issue has already been liked
-      if (
-        issue.likes.filter((like) => like.user.toString() === userId).length ===
-        0
-      ) {
-        return res.status(400).json({ msg: "Issue has not yet been liked" });
+      
+      if (!issue) {
+        return res.status(404).json({ msg: "Issue not found" });
       }
 
-      // Get remove index
-      const removeIndex = issue.likes
-        .map((like) => like.user.toString())
-        .indexOf(userId);
-
-      issue.likes.splice(removeIndex, 1);
-
-      await issue.save();
+      // Remove like (downvote) from the issue
+      const removeIndex = issue.likes.findIndex(like => like.user.toString() === userId);
+      if (removeIndex !== -1) {
+        issue.likes.splice(removeIndex, 1);
+        await issue.save();
+      }
 
       res.json(issue.likes);
     } catch (error) {
@@ -162,5 +154,6 @@ issueRouter.put(
     }
   }
 );
+
 
 module.exports = issueRouter;

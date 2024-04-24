@@ -136,6 +136,7 @@ export default function IssuesProvider(props) {
     userAxios
       .put(`/api/issue/unlike/${issueId}`)
       .then((res) => {
+        console.log("issue disliked", res.data)
         setIssueState((prevState) => ({
           ...prevState,
           issues: prevState.issues.map((issue) => {
