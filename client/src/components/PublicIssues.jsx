@@ -1,11 +1,13 @@
-import React, { useState, useContext, useEffect } from 'react';
-import PublicIssue from './PublicIssue';
-import { CommentContext } from '../../context/CommentProvider';
-import { IssuesContext } from '../../context/IssuesProvider';
-import { UserContext } from '../../context/UserProvider';
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+import React, { useState, useContext, useEffect } from "react";
+import PublicIssue from "./PublicIssue";
+import { CommentContext } from "../context/CommentProvider";
+import { IssuesContext } from "../context/IssueProvider";
+import { UserContext } from "../context/UserProvider";
 
-import CommentForm from '../Comment/CommentForm';
-import Comments from '../Comment/Comments';
+import CommentForm from "./CommentsForm";
+import Comments from "./CommentsList";
 
 const PublicIssues = ({ publicIssues }) => {
   const { getComments, comments } = useContext(CommentContext);
@@ -32,14 +34,17 @@ const PublicIssues = ({ publicIssues }) => {
   }, [currentIssueId]);
 
   return (
-    <div className='publicIssues-list'>
+    <div className="publicIssues-list">
       {publicIssues?.map((issue) => (
-        <div className='comment-section' key={issue._id}>
+        <div className="comment-section" key={issue._id}>
           <PublicIssue {...issue} />
-          <span className='likes-counter'>
-            { issue.likes.length === 0 ? '' : <i className='fa-solid fa-thumbs-up'></i>}
+          <span className="likes-counter">
+            {issue.likes.length === 0 ? (
+              ""
+            ) : (
+              <i className="fa-solid fa-thumbs-up"></i>
+            )}
 
-            {/*  Using IIFE (Immediately Invoked Function Expression) */}
             {(() => {
               const userLike = issue.likes.filter(
                 (like) => like.user === userId
@@ -50,30 +55,32 @@ const PublicIssues = ({ publicIssues }) => {
               } else if (userLike.length > 0 && otherLikes === 0) {
                 return `${username}`;
               } else if (userLike.length === 0 && otherLikes === 0) {
-                return '';
-              }else if (userLike.length === 0 && otherLikes === 1) {
-                return `${issue.likes?.map(like => `${like.username}`)}`;
+                return "";
+              } else if (userLike.length === 0 && otherLikes === 1) {
+                return `${issue.likes?.map((like) => `${like.username}`)}`;
               } else if (userLike.length > 0 && otherLikes === 1) {
-                return `${issue.likes?.map(like => `${like.username}`).join(' and ')}`;
+                return `${issue.likes
+                  ?.map((like) => `${like.username}`)
+                  .join(" and ")}`;
               } else {
                 return `${otherLikes}`;
               }
             })()}
           </span>
 
-          <div className='comment-btn-wrapper'>
-            <div className='likes-btn-wrapper'>
+          <div className="comment-btn-wrapper">
+            <div className="likes-btn-wrapper">
               {
                 <button onClick={() => likeIssue(issue._id)}>
                   <span>
-                    <i className='fa-regular fa-thumbs-up'></i>
+                    <i className="fa-regular fa-thumbs-up"></i>
                   </span>
                 </button>
               }
               {
                 <button onClick={() => dislikeIssue(issue._id)}>
                   <span>
-                    <i className='fa-regular fa-thumbs-down'></i>
+                    <i className="fa-regular fa-thumbs-down"></i>
                   </span>
                 </button>
               }
@@ -87,12 +94,12 @@ const PublicIssues = ({ publicIssues }) => {
             >
               {currentIssueId === issue._id ? (
                 <span>
-                  <i className='fa-regular fa-comment'></i> Comments{' '}
+                  <i className="fa-regular fa-comment"></i> Comments{" "}
                   {comments.length}
                 </span>
               ) : (
                 <span>
-                  <i className='fa-regular fa-comment'></i> Comment
+                  <i className="fa-regular fa-comment"></i> Comment
                 </span>
               )}
             </button>
