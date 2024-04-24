@@ -5,6 +5,13 @@ import axios from "axios";
 
 export const UserContext = React.createContext();
 
+export const User = ({ user, children }) => {
+  return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
+};
+
+// UserProvider.jsx
+
+
 const userAxios = axios.create();
 
 userAxios.interceptors.request.use((config) => {

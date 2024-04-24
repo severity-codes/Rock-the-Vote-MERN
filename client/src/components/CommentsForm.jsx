@@ -1,49 +1,36 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
-import React, { useContext, useState } from "react";
-import { UserContext } from "../context/UserProvider";
-import { IssuesContext } from "../context/IssueProvider";
-import "../style/commentStyle.css";
+
+import React, { useContext } from "react";
 import { CommentContext } from "../context/CommentProvider";
-function CommentForm(props) {
-  const { issueId } = props;
+import { UserContext } from "../context/UserProvider";
 
-  const initInputs = {
-    comment: "",
-  };
-
-  const [inputs, setInputs] = useState(initInputs);
-
+const CommentForm = ({ issueId }) => {
+  const initInputs = { comment: "" };
+  const [inputs, setInputs] = React.useState(initInputs);
   const { addComment } = useContext(CommentContext);
+  const { user, token } = useContext(UserContext);
 
-  const {
-    user: { username },
-    token,
-  } = useContext(UserContext);
-
-  function handleChange(e) {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setInputs((prevInputs) => ({
       ...prevInputs,
       [name]: value,
     }));
-  }
+  };
 
-
-  function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
-    addComment(issueId, { text: inputs.comment });
+    const payload = { user: user._id, comment: inputs.comment };
+    addComment(issueId, payload);
     setInputs(initInputs);
-  }
-
-  const { comment } = inputs;
-
-  const firstLetter = username ? username.charAt(0).toUpperCase() : "";
+  };
 
   if (!token) {
     return null; // or render some other component instead
   }
+
+  const { comment } = inputs;
+  const firstLetter = user.username ? user.username.charAt(0).toUpperCase() : "";
 
   return (
     <div className="comment-form-wrapper">
@@ -56,12 +43,12 @@ function CommentForm(props) {
           onChange={handleChange}
           placeholder="Write a comment..."
         />
-        <button className="comment-submit-btn">
+        <button type="submit" className="comment-submit-btn">
           <i className="fa-regular fa-paper-plane"></i>
         </button>
       </form>
     </div>
   );
-}
+};
 
 export default CommentForm;

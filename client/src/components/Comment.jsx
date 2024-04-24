@@ -10,10 +10,11 @@ import moment from "moment";
 function Comment(props) {
   const { comment, _id, issueId, user, createdAt } = props;
 
-  const firstLetter = user ? user.username.charAt(0).toUpperCase() : "";
+
+  const firstLetter = user?.username?.charAt(0).toUpperCase() || "";
   const usernameCased =
-    user?.username.charAt(0).toUpperCase() +
-    user?.username.slice(1).toLowerCase();
+    user?.username?.charAt(0).toUpperCase() +
+      user?.username?.slice(1).toLowerCase() || "";
 
   const { deleteComment } = useContext(CommentContext);
 
