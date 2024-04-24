@@ -4,6 +4,13 @@ import React, { useContext, useState, useEffect } from "react";
 import { UserContext } from "../context/UserProvider";
 import { IssuesContext } from "../context/IssueProvider";
 import ppic from '../assets/ppic.png'
+import "./profile.css"
+
+
+
+
+
+
 export default function Profile() {
   const { user, updateUser } = useContext(UserContext);
   const { issues } = useContext(IssuesContext);
@@ -23,20 +30,18 @@ export default function Profile() {
   }
 
   return (
-    <div>
-      <h1>Profile</h1>
-      <div>
+    <div className="profile-container">
+      <div className="profile-header">
+        <h1>Profile</h1>
+      </div>
+      <div className="user-info">
         <h2>User Information</h2>
         <div>
-          <p>Name: Daenerys Targaryen</p>
-          <img
-            src={ppic}
-            alt="Profile"
-            style={{ width: 100, height: 100, borderRadius: "50%" }}
-          />
+          <p>Name: {user.name}</p>
+          <img src={ppic} alt="Profile" className="profile-image" />
         </div>
       </div>
-      <div>
+      <div className="sorted-issues">
         <h2>Sorted Issues</h2>
         <ul>
           {sortedIssues.map((issue) => (
@@ -48,7 +53,9 @@ export default function Profile() {
           ))}
         </ul>
       </div>
-      <button onClick={handleUpdateName}>Update Name</button>
+      <button className="update-name-btn" onClick={handleUpdateName}>
+        Update Name
+      </button>
     </div>
   );
 }
