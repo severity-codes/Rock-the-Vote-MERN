@@ -37,6 +37,7 @@ issueRouter.get("/user", async (req, res) => {
 // Add new Issue
 issueRouter.post("/",expressjwt({ secret: process.env.SECRET, algorithms: ['HS256'] }), async (req, res, next) => {
   try {
+    console.log("adding new issue", req.body)
     req.body.user = req.auth._id;
     const newIssue = new Issue(req.body);
     const savedIssue = await newIssue.save();

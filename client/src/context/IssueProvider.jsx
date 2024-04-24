@@ -32,6 +32,7 @@ export default function IssuesProvider(props) {
     userAxios
       .post("/api/issue", newIssue)
       .then((res) => {
+        console.log("issue added", res.data);
         setIssueState((prevState) => ({
           ...prevState,
           issues: [...prevState.issues, res.data],
