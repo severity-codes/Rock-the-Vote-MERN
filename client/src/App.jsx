@@ -4,7 +4,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Auth from "./components/Auth";
 import Profile from "./components/Profile";
-import Public from "./components/PublicIssues";
+import Public from './components/Public'
 import { UserContext } from "./context/UserProvider";
 import Home from "./components/Home";
 import "./App.css";
@@ -19,9 +19,9 @@ export default function App() {
         {token ? (
           <>
             <Route path="/" element={<Home />} />
-
             <Route path="/profile" element={<Profile />} />
             <Route path="/public" element={<Public />} />
+           
           </>
         ) : (
           <Route path="*" element={<Auth />} />

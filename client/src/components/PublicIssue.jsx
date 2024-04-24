@@ -1,7 +1,7 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import React from "react";
-import moment from "moment";
+/* eslint-disable no-unused-vars */
+import React from 'react';
+import moment from 'moment';
 
 const PublicIssue = (props) => {
   const { title, description, imgUrl, user, createdAt } = props;
@@ -14,22 +14,22 @@ const PublicIssue = (props) => {
   const formattedTime = moment(createdAt).fromNow();
 
   return (
-    <div className="issue-container">
+    <div className='issue-container'>
       <div>
-        <div className="user-info">
-          <div className="profile-pic">{firstLetter}</div>
-          <div className="name-time">
+        <div className='user-info'>
+          <div className='profile-pic'>{firstLetter}</div>
+          <div className='name-time'>
             <div>
               <h3>{usernameCased}</h3>
               <p>{formattedTime}</p>
             </div>
           </div>
         </div>
-        <div className="issue-wrapper">
-          <div className="issue-div">
-            <h3 className="issue-title">{title}</h3>
-            <p className="issue-des">{description}</p>
-            <img className="issue-img" src={imgUrl} alt={title} width={300} />
+        <div className='issue-wrapper'>
+          <div className='issue-div'>
+            <h3 className='issue-title'>{title}</h3>
+            <p className='issue-des'>{description}</p>
+            <img className='issue-img' src={imgUrl} alt={title} width={300} />
           </div>
         </div>
       </div>

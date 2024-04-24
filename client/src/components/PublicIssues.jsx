@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React, { useState, useContext, useEffect } from "react";
 import PublicIssue from "./PublicIssue";
 import { CommentContext } from "../context/CommentProvider";
@@ -45,6 +45,7 @@ const PublicIssues = ({ publicIssues }) => {
               <i className="fa-solid fa-thumbs-up"></i>
             )}
 
+            {/*  Using IIFE (Immediately Invoked Function Expression) */}
             {(() => {
               const userLike = issue.likes.filter(
                 (like) => like.user === userId
