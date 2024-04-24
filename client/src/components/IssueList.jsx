@@ -49,7 +49,7 @@ export default function Issues({ userId }) {
               <i className="fa-solid fa-thumbs-up"></i>
             )}
 
-            {/*  Using IIFE (Immediately Invoked Function Expression) */}
+           
             {(() => {
               const userLike = issue.likes.filter(
                 (like) => like.user === userId
