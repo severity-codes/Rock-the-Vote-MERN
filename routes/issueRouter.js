@@ -1,28 +1,27 @@
 const express = require("express");
-const issueRouter = express.Router();
-const Issue = require("../models/Issue.js");
-const User = require("../models/User.js");
-const { expressjwt } = require("express-jwt");
-require("dotenv").config();
+const issueRouter = express.Router(); // This line was missing
+const User = require("../models/User");
+const Issue = require("../models/Issue");
+const { expressjwt: expressJwt } = require("express-jwt");
 
-
-// Get All Issues
-issueRouter.get("/", async (req, res, next) => {
-  try {
-    const issues = await Issue.find()
-      .sort({ createdAt: -1 })
-      .populate("user", "username profileImage");
-    res.status(200).send(issues);
-  } catch (err) {
-    res.status(500);
-    return next(err);
-  }
-});
+expressJwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
+  // Get All Issues
+  issueRouter.get("/", async (req, res, next) => {
+    try {
+      const issues = await Issue.find()
+        .sort({ createdAt: -1 })
+        .populate("user", "username profileImage");
+      res.status(200).send(issues);
+    } catch (err) {
+      res.status(500);
+      return next(err);
+    }
+  });
 
 // Get issues by user id
 issueRouter.get(
   "/user/:id",
-  expressjwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
+  expressJwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
   async (req, res, next) => {
     try {
       const issues = await Issue.find({ user: req.auth._id })
@@ -39,7 +38,7 @@ issueRouter.get(
 // Add new Issue
 issueRouter.post(
   "/",
-  expressjwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
+  expressJwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
   async (req, res, next) => {
     try {
       req.body.user = req.auth._id;
@@ -60,7 +59,7 @@ issueRouter.post(
 // Delete Issue
 issueRouter.delete(
   "/:issueId",
-  expressjwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
+ expressJwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
   async (req, res, next) => {
     try {
       const deletedIssue = await Issue.findOneAndDelete({
@@ -78,7 +77,7 @@ issueRouter.delete(
 // Update Issue
 issueRouter.put(
   "/:issueId",
-  expressjwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
+ expressJwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
   async (req, res, next) => {
     try {
       const updatedIssue = await Issue.findOneAndUpdate(
@@ -97,23 +96,25 @@ issueRouter.put(
 // @route   PUT api/issues/like/:id
 // @des     Like a issue
 // @access  Private
-// @route   PUT api/issues/like/:id
-// @des     Upvote (like) an issue
-// @access  Private
 issueRouter.put(
   "/like/:id",
-  expressjwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
+  expressJwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
   async (req, res) => {
     try {
       const issue = await Issue.findById(req.params.id);
       const userId = req.auth._id;
       const username = req.auth.username;
-      
+      console.log(username);
+
       if (!issue) {
         return res.status(404).json({ msg: "Issue not found" });
       }
 
-      // Add like (upvote) to the issue
+      // Check if the issue has already been liked by the user
+      if (issue.likes.some((like) => like.user.toString() === userId)) {
+        return res.status(400).json({ msg: "Issue already liked" });
+      }
+
       issue.likes.push({ user: userId, username: username });
       await issue.save();
 
@@ -125,27 +126,33 @@ issueRouter.put(
   }
 );
 
-// @route   PUT api/issues/dislike/:id
-// @des     Downvote (dislike) an issue
+// @route   PUT api/issues/unlike/:id
+// @des     Unlike an issue
 // @access  Private
 issueRouter.put(
-  "/dislike/:id",
-  expressjwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
+  "/unlike/:id",
+expressJwt({ secret: process.env.SECRET, algorithms: ["HS256"] }),
   async (req, res) => {
     try {
       const issue = await Issue.findById(req.params.id);
       const userId = req.auth._id;
-      
-      if (!issue) {
-        return res.status(404).json({ msg: "Issue not found" });
+
+      // Check if the issue has already been liked
+      if (
+        issue.likes.filter((like) => like.user.toString() === userId).length ===
+        0
+      ) {
+        return res.status(400).json({ msg: "Issue has not yet been liked" });
       }
 
-      // Remove like (downvote) from the issue
-      const removeIndex = issue.likes.findIndex(like => like.user.toString() === userId);
-      if (removeIndex !== -1) {
-        issue.likes.splice(removeIndex, 1);
-        await issue.save();
-      }
+      // Get remove index
+      const removeIndex = issue.likes
+        .map((like) => like.user.toString())
+        .indexOf(userId);
+
+      issue.likes.splice(removeIndex, 1);
+
+      await issue.save();
 
       res.json(issue.likes);
     } catch (error) {
@@ -154,6 +161,5 @@ issueRouter.put(
     }
   }
 );
-
 
 module.exports = issueRouter;
