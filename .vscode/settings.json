@@ -3,10 +3,12 @@
         "Daenerys",
         "expressjwt",
         "getpublic",
+        "ppic",
         "publicissues",
         "Singup",
         "Targaryen",
-        "upvoted"
+        "upvoted",
+        "upvotes"
     ],
     "emmet.excludeLanguages": [
         "xsl",
